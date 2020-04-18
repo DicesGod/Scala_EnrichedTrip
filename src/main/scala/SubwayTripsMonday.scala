@@ -1,16 +1,15 @@
-import java.io.{BufferedWriter, OutputStreamWriter}
-
-import au.com.bytecode.opencsv.CSVWriter
-import ca.mcit.model.{Calendar, Connection, Route, Trip}
+import java.io.OutputStreamWriter
+import ca.mcit.model.{Connection, Route, Trip}
 import org.apache.hadoop.fs.{FSDataOutputStream, Path}
+import java.io.BufferedWriter
+import au.com.bytecode.opencsv.CSVWriter
+import ca.mcit.model.Calendar
 
 object SubwayTripsMonday extends App{
   //Convert list of Calendar to map
   val lookupCalendarMap: Map[String, Calendar] = Calendar.createCalendarsMap
 
   val tripRoute = new TripRoute()
-  //println(tripRoute.lookupRouteMap)
-
   val enrichedSubwayTripsMondays: Seq[(Int, String, String, (Trip, Route), Calendar)] = tripRoute.lookupRouteTripTable.collect{ case (service_id,route_id,trip_id,tripRoute)
     if lookupCalendarMap.contains(service_id) => (route_id,service_id,trip_id,tripRoute,lookupCalendarMap(service_id))}
     .filter(x => x._4._2.route_type == 1 && x._5.monday == 1).toSeq.sortBy(_._1) //Route Type of Metro = 1
@@ -55,4 +54,6 @@ object SubwayTripsMonday extends App{
   stream.close()
   csvWriter.close()
   Connection.fs.close()
+  outputFile.close()
+
 }

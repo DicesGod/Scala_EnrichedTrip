@@ -1,6 +1,5 @@
 import ca.mcit.model.{Calendar, Connection}
 import java.io.{BufferedWriter, OutputStreamWriter}
-
 import au.com.bytecode.opencsv.CSVWriter
 import org.apache.hadoop.fs.{FSDataOutputStream, Path}
 import java.util.concurrent.TimeUnit
@@ -22,10 +21,8 @@ object EnrichedTrip extends App{
   //Convert list of Calendar to map
   val lookupCalendarMap: Map[String, Calendar] = Calendar.createCalendarsMap
 
-  val tripRoute2 = new TripRoute()
-  //println(tripRoute2.lookupRouteMap)
-
-  val enrichedTrips: Seq[(Int, String, String, String, String)] = tripRoute2.lookupRouteTripTable.collect{ case (service_id,route_id,trip_id,tripRoute)
+  val tripRoute = new TripRoute()
+  val enrichedTrips = tripRoute.lookupRouteTripTable.collect{ case (service_id,route_id,trip_id,tripRoute)
   if lookupCalendarMap.contains(service_id) => (route_id,service_id,trip_id,
   //Trip info
     tripRoute._1.trip_headsign+","
@@ -63,7 +60,6 @@ object EnrichedTrip extends App{
   val stream: FSDataOutputStream = Connection.fs.create(filePath)
   val outputFile = new BufferedWriter(new OutputStreamWriter(stream))
   val csvWriter = new CSVWriter(outputFile)
-
   val csvFields = List("route_id", "service_id", "trip_id", "trip_headsign","direction_id","shape_id","wheelchair_accessible","note_fr","note_en"
   ,"agency_id","route_short_name","route_long_name","route_type", "route_url","route_color","route_text_color"
   ,"monday","tuesday","wednesday","thursday","friday","saturday","sunday","start_date","end_date")
@@ -73,13 +69,14 @@ object EnrichedTrip extends App{
     .replace(")","")
     .replace("\"","")
 
-  //enrichedTrips.foreach(println)
-
   csvWriter.writeNext(ListEnrichedTrips)
+
   println("Created enrichedTrips.csv with: " +enrichedTrips.size+" records")
 
   outputFile.close()
   stream.close()
   csvWriter.close()
   Connection.fs.close()
+  outputFile.close()
+
 }
