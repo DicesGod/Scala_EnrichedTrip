@@ -1,7 +1,6 @@
 import ca.mcit.model.{Route, Trip}
 
 class TripRoute{
-
   //Convert list of Trips and Routes to maps
   val lookupTripMap: Map[(Int,String), Trip] = Trip.createTripsMap
   val lookupRouteMap: Map[Int, Route] = Route.createRoutesMap
